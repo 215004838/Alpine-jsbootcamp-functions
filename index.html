@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Widget Application</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.js" defer></script>
+</head>
+<body>
+    <!-- Greet Widget -->
+    <div class="widget-container" x-data="greetWidget()">
+        <h2>Greet Widget</h2>
+        <label for="nameInput">Enter your name:</label>
+        <input type="text" id="nameInput" x-model="name">
+        <button @click="greet()">Greet</button>
+        <p x-text="greetingMessage"></p>
+    </div>
+
+    <!-- Word Game Widget -->
+    <div class="widget-container" x-data="wordGameWidget()">
+        <h2>Word Game Widget</h2>
+        <label for="sentenceInput">Enter a sentence:</label>
+        <input type="text" id="sentenceInput" x-model="sentence">
+        <button @click="solve()">Solve</button>
+        <p x-text="longestWordMessage"></p>
+        <p x-text="shortestWordMessage"></p>
+        <p x-text="sumOfLettersMessage"></p>
+    </div>
+
+    <!-- Airtime Widget -->
+    <div class="widget-container" x-data="enoughAirtimeWidget()">
+        <h2>Airtime Widget</h2>
+        <label for="airtimeUsageInput">Enter airtime usage (comma-separated):</label>
+        <input type="text" id="airtimeUsageInput" x-model="airtimeUsage">
+        <label for="availableAirtimeInput">Enter available airtime:</label>
+        <input type="number" id="availableAirtimeInput" x-model="availableAirtime">
+        <button @click="calculate()">Calculate</button>
+        <p x-text="airtimeMessage"></p>
+    </div>
+
+    <!-- Total Phone Bill Widget -->
+    <div class="widget-container" x-data="totalPhoneBillWidget()">
+        <h2>Total Phone Bill Widget</h2>
+        <label for="callInput">Enter number of calls:</label>
+        <input type="number" id="callInput" x-model="numCalls">
+        <label for="smsInput">Enter number of SMS:</label>
+        <input type="number" id="smsInput" x-model="numSMS">
+        <button @click="calculateBill()">Calculate Bill</button>
+        <p x-text="billMessage"></p>
+    </div>
+
+    <script>
+        // Greet Widget
+        function greetWidget() {
+            return {
+                name: '',
+                greetingMessage: '',
+                greet() {
+                    this.greetingMessage = `Hello, ${this.name}`;
+                }
+            };
+        }
+
+        // Word Game Widget
+        function wordGameWidget() {
+            function longestWord(str) {
+                const words = str.split(" ");
+                let longest = '';
+                for (const word of words) {
+                    if (word.length >= longest.length) {
+                        longest = word;
+                    }
+                }
+                return longest;
+            }
+
+            function shortestWord(str) {
+                const words = str.split(' ');
+                let shortest = words[0];
+                for (const word of words) {
+                    if (word.length <= shortest.length) {
+                        shortest = word;
+                    }
+                }
+                return shortest;
+            }
+
+            function wordLengths(str) {
+                const lengths = str.split(' ').map(word => word.length);
+                return lengths.reduce((acc, curr) => acc + curr, 0);
+            }
+
+            return {
+                sentence: '',
+                longestWordMessage: '',
+                shortestWordMessage: '',
+                sumOfLettersMessage: '',
+                solve() {
+                    this.longestWordMessage = 'The longest word is: ' + longestWord(this.sentence);
+                    this.shortestWordMessage = 'The shortest word is: ' + shortestWord(this.sentence);
+                    this.sumOfLettersMessage = 'Sum of the alphabet lengths is: ' + wordLengths(this.sentence);
+
+                    setTimeout(() => {
+                        this.sentence = '';
+                        this.longestWordMessage = '';
+                        this.shortestWordMessage = '';
+                        this.sumOfLettersMessage = '';
+                    }, 8000);
+                }
+            };
+        }
+
+        // Airtime Widget
+        function enoughAirtimeWidget() {
+            function enoughAirtime(str, proj) {
+                const items = str.split(',').map(item => item.trim());
+                let cost = 0;
+                for (const item of items) {
+                    switch (item) {
+                        case 'sms':
+                            cost += 0.75;
+                            break;
+                        case 'call':
+                            cost += 1.88;
+                            break;
+                        case 'data':
+                            cost += 12;
+                            break;
+                        default:
+                            // Ignore unknown items
+                            break;
+                    }
+                }
+                return proj - cost > 0 ? "R" + (proj - cost).toFixed(2) : "R0.00";
+            }
+
+            return {
+                airtimeUsage: '',
+                availableAirtime: '',
+                airtimeMessage: '',
+                calculate() {
+                    const amount = enoughAirtime(this.airtimeUsage, this.availableAirtime);
+                    this.airtimeMessage = amount;
+
+                    setTimeout(() => {
+                        this.airtimeMessage = '';
+                        this.availableAirtime = '';
+                        this.airtimeUsage = '';
+                    }, 3000);
+                }
+            };
+        }
+
+        // Total Phone Bill Widget
+        function totalPhoneBillWidget() {
+            function totalPhoneBill(numCalls, numSMS) {
+                const cost = numCalls * 2.75 + numSMS * 0.65;
+                return "R" + cost.toFixed(2);
+            }
+
+            return {
+                numCalls: 0,
+                numSMS: 0,
+                billMessage: '',
+                calculateBill() {
+                    this.billMessage = totalPhoneBill(this.numCalls, this.numSMS);
+
+                    setTimeout(() => {
+                        this.billMessage = '';
+                        this.numCalls = 0;
+                        this.numSMS = 0;
+                    }, 3000);
+                }
+            };
+        }
+    </script>
+</body>
+</html>
